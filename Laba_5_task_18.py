@@ -47,14 +47,20 @@ while True:
 
 start = time.monotonic()
 np.set_printoptions(linewidth=1000)
+
 # Создание и заполнение матрицы A:
 A = np.array([[0] * N]*N)
-number = 1
+flag_matrix = True
+number = 0
 for row in range(N):
     for column in range(N):
-        # A[row, column] = number
-        # number += 1
-        A[row, column] = random.randint(-10, 10)
+        if flag_matrix:
+            A[row, column] = number
+        else:
+            A[row, N - 1 - column] = number
+        number += 1
+    flag_matrix = not flag_matrix
+        # A[row, column] = random.randint(-10, 10)
 print("Матрица А:\n", A)
 
 # Создание подматриц:
@@ -86,7 +92,8 @@ for row in range(0, submatrix_length, 2):
     if flag_zero:
         multiplication_of_numbers = 0
         break
-print("Произведение чисел, стоящик в нечетных строках подматрицы С:", multiplication_of_numbers)
+print("Сокращенное произведение чисел, стоящик в нечетных строках подматрицы С (произведение сокращенное, чтобы не было переполнения): ", multiplication_of_numbers)
+
 
 # Формируем матрицу F:
 if count_number_in_column > multiplication_of_numbers:
@@ -106,7 +113,10 @@ if logdet > 100:
     logdet = 100
 if sign * np.exp(logdet) > main_diagonal_F:
     flag = True
-print("Сокращенный определитель матрицы А: {:.3f}".format(sign * np.exp(logdet)))
+if logdet != 100:
+    print("Определитель матрицы А: {:.3f}".format(sign * np.exp(logdet)))
+else:
+    print("Сокращенный определитель матрицы А: {:.3f}".format(sign * np.exp(logdet)))
 
 try:
     if flag:
