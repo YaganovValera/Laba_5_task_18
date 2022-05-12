@@ -14,126 +14,47 @@ import numpy as np
 import random
 import time
 
-# Получаем пользовательский ввод:
-while True:
-    N = input("Введите длину матрицы (положительное, целое число, в диапазоне от 3 до 1000): ")
-    N = N.strip()
-    if N.isdigit():
-        N = int(N)
-        if (N >= 3) and (N <= 1000):
-            break
-        else:
-            print("Ошибка. Заданное число не входит в разрешенный диапазон.")
-    else:
-        print("Неверный ввод данных.")
-while True:
-    flag_minus = False
-    K = input("Введите число K (целое число): ")
-    K = K.strip()
-    # Проверка на ввод знака
-    if K[0] == '-' or K[0] == '+':
-        if K[0] == '-':
-            flag_minus = True
-            K = K.replace('-', '')
-        else:
-            K = K.replace('+', '')
-    if K.isdigit():
-        K = int(K)
-        if flag_minus:
-            K = - int(K)
-        break
-    else:
-        print("Неверный ввод.")
-
-start = time.monotonic()
-np.set_printoptions(linewidth=1000)
-
-# Создание и заполнение матрицы A:
-A = np.array([[0] * N]*N)
-flag_matrix = True
-number = 0
-for row in range(N):
-    for column in range(N):
-        if flag_matrix:
-            A[row, column] = number
-        else:
-            A[row, N - 1 - column] = number
-        number += 1
-    flag_matrix = not flag_matrix
-        # A[row, column] = random.randint(-10, 10)
-print("Матрица А:\n", A)
-
-# Создание подматриц:
-submatrix_length = N // 2                                                       # Длина подматрицы
-sub_matrix_C = np.array(A[:submatrix_length, submatrix_length+N % 2:N])
-print("\nПодатрица С:\n", sub_matrix_C)
-sub_matrix_B = np.array(A[:submatrix_length, :submatrix_length])
-sub_matrix_E = np.array(A[submatrix_length+N % 2:N, submatrix_length+N % 2:N])
-
-# Создание матрицы F:
-F = A.copy()
-print("\nМатрица F: \n", F)
-
-# Обработка матрицы С:
-count_number_in_column = np.sum(sub_matrix_C[:, 0:submatrix_length:2] > K)
-print("\nКоличество чисел, стоящик в нечетных столбцах подматрицы С, больших К:", count_number_in_column)
-multiplication_of_numbers = 1
-flag_zero = False                                                               # Отвечает за наличие нуля
-for row in range(0, submatrix_length, 2):
-    for column in range(submatrix_length):
-        if sub_matrix_C[row, column] == 0:
-            flag_zero = True
-            break
-        if abs(multiplication_of_numbers) > count_number_in_column:
-            if sub_matrix_C[row, column] < 0:
-                multiplication_of_numbers *= (-1)
-        else:
-            multiplication_of_numbers *= sub_matrix_C[row, column]
-    if flag_zero:
-        multiplication_of_numbers = 0
-        break
-print("Сокращенное произведение чисел, стоящик в нечетных строках подматрицы С (произведение сокращенное, чтобы не было переполнения): ", multiplication_of_numbers)
-
-
-# Формируем матрицу F:
-if count_number_in_column > multiplication_of_numbers:
-    F[:submatrix_length, submatrix_length + N % 2:N] = sub_matrix_B[:submatrix_length, ::-1]
-    F[:submatrix_length, :submatrix_length] = sub_matrix_C[:submatrix_length, ::-1]
-else:
-    F[:submatrix_length, submatrix_length+N % 2:N] = sub_matrix_E
-    F[submatrix_length+N % 2:N, submatrix_length+N % 2:N] = sub_matrix_C
-print("\nОтформатированная матрица F: \n", F)
-
-# Вычисляем выражение:
-flag = False
-main_diagonal_F = np.sum(F.diagonal())
-print("\nСумма диагональных элементов матрицы F:", main_diagonal_F)
-sign, logdet = np.linalg.slogdet(A)                                            # вычисляем определитель матрицы А
-if logdet > 100:
-    logdet = 100
-if sign * np.exp(logdet) > main_diagonal_F:
-    flag = True
-if logdet != 100:
-    print("Определитель матрицы А: {:.3f}".format(sign * np.exp(logdet)))
-else:
-    print("Сокращенный определитель матрицы А: {:.3f}".format(sign * np.exp(logdet)))
-
 try:
-    if flag:
-        print("\nМатрица А транспанированная: \n", A.transpose())
-        print("\nПроизведение матрицы А на А^T: \n", A * A.transpose())
-        print("\nОбратная матрица F: \n", np.linalg.inv(F))
-        print("\nПроизведение обратной матрицы F на K: \n", np.linalg.inv(F)*K)
-        print("\n Результат выражения A*A^T - K*F^(-1): \n", A*A.transpose() - np.linalg.inv(F)*K)
+    N = int(input("Введите длину матрицы (положительное, целое число, > 3): "))
+    while N <= 3:
+        N = int(input("Введите длину матрицы (положительное, целое число, > 3): "))
+    K = int(input("Введите число K (целое число): "))
+    start = time.monotonic()
+    np.set_printoptions(linewidth=1000)
+    # Создание и заполнение матрицы A:
+    A = np.random.randint(-10.0, 10.0, (N, N))
+    print("Матрица А:\n", A)
+    # Создание подматриц:
+    submatrix_length = N // 2                                                       # Длина подматрицы
+    sub_matrix_C = np.array(A[:submatrix_length, submatrix_length+N % 2:N])
+    sub_matrix_B = np.array(A[:submatrix_length, :submatrix_length])
+    sub_matrix_E = np.array(A[submatrix_length+N % 2:N, submatrix_length+N % 2:N])
+    # Создание матрицы F:
+    F = A.copy()
+    print("\nМатрица F: \n", F)
+    # Обработка матрицы С:
+    count_number_in_column = np.sum(sub_matrix_C[:, 0:submatrix_length:2] > K)
+    multiplication_of_numbers = sub_matrix_C[1::2].prod()
+    print("Сумма чисел стоящих в нечетных столбцах подматрицы С, которые больше К:", count_number_in_column)
+    print("Произведение чисел стоящих в нечетных строках подматрицы С:", multiplication_of_numbers)
+    # Формируем матрицу F:
+    if count_number_in_column > multiplication_of_numbers:
+        F[:submatrix_length, submatrix_length + N % 2:N] = sub_matrix_B[:submatrix_length, ::-1]
+        F[:submatrix_length, :submatrix_length] = sub_matrix_C[:submatrix_length, ::-1]
     else:
-        print("\nОбратная матрица А: \n", np.linalg.inv(A))
-        G = np.tri(N)*A
-        print("\nНижняя треугольная матрица G, из матрицы А: \n", G)
-        print("\nТранспанированная матрица F:\n", F.transpose())
-        print("\nВыражение (A^(-1) +G-F^Т): \n", np.linalg.inv(A)+G-F.transpose())
-        print("\nРезультат выражения (A^(-1) +G-F^Т)*K:\n", (np.linalg.inv(A)+G-F.transpose())*K)
-except np.linalg.LinAlgError:
-    print('Ошибка. Одна из матриц является вырожденной(определитель равен 0), поэтому обратную матрицу найти невозможно.')
-
-finish = time.monotonic()
-print("\nВремя работы программы:", finish - start, "sec.")
+        F[:submatrix_length, submatrix_length+N % 2:N] = sub_matrix_E
+        F[submatrix_length+N % 2:N, submatrix_length+N % 2:N] = sub_matrix_C
+    print("\nОтформатированная матрица F: \n", F)
+    # Вычисляем выражение:
+    try:
+        if np.linalg.det(A) > sum(np.diagonal(F)):
+            print("\n Результат выражения A*A^T - K*F^(-1): \n", A*A.transpose() - np.linalg.inv(F)*K)
+        else:
+            G = np.tri(N)*A
+            print("\nРезультат выражения (A^(-1) +G-F^Т)*K:\n", (np.linalg.inv(A)+G-F.transpose())*K)
+    except np.linalg.LinAlgError:
+        print('Одна из матриц является вырожденной(определитель равен 0), поэтому обратную матрицу найти невозможно.')
+    finish = time.monotonic()
+    print("\nВремя работы программы:", finish - start, "sec.")
+except ValueError:
+    print("Введены неверные даннные")
